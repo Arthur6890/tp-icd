@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trabalho Prático - ICD 2024/1</title>
+    <link rel="stylesheet" href="style.css">
+
+    <link rel="icon" href="./assets/favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;1,400;1,500&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <h1>Geração de Dieta Personalizada Para Diabéticos</h1>
+        <h2>Projeto Final de Introdução à Ciência de Dados</h2>
+        <h3>Trabalho ICD 24/1 - Grupo 19</h3>
+        <h4>Arthur Ramos, Gabriel Coelho, Gabriel Marra, Igor Martins</h4>
+    </header>
+
+
+    <main class="container">
+        <h2>Sumário</h2>
+        <ol>
+            <li><a href="#informacoes">Informações Externas</a></li>
+            <li><a href="#introducao">Introdução</a></li>
+            <li><a href="#motivacao">Motivação</a></li>
+            <li><a href="#dados">Dados Utilizados</a></li>
+            <li><a href="#perguntas">Perguntas</a></li>
+            <li><a href="#analise">Análise Exploratória dos Dados</a></li>
+            <li><a href="#hipotese">Teste de Hipótese</a></li>
+            <li><a href="#regressao">Modelos de Regressão</a></li>
+            <li><a href="#consideracoes">Outras Considerações</a></li>
+            <li><a href="#conclusoes">Conclusões</a></li>
+        </ol>
+
+        <h2 id="informacoes">Informações Externas</h2>
+        <p>Todos os arquivos, notebooks, dados e modelos usados para criar esse relatório estão no repositório abaixo.
+        </p>
+        <p><strong>Link para o repositório:</strong> <a href="https://github.com/Arthur6890/tp-icd/tree/main"
+                target="_blank">Repositório Github</a></p>
+
+        <h2 id="introducao">Introdução</h2>
+        <p>Neste trabalho, iremos analisar como a composição de macronutrientes de um determinado alimento impacta nos
+            seus respectivos índice glicêmico (GI) e carga glicêmica (GL).
+        </p>
+
+        <h2 id="motivacao">Motivação</h2>
+        <p>Explicando brevemente, como consta na fonte de nossa base de dados:</p>
+
+        <blockquote>
+            “O Índice Glicêmico (GI) é uma medida da rapidez com que um determinado alimento pode aumentar os seus
+            níveis de açúcar no sangue. [...] O GI de um alimento é determinado medindo a área incremental sob a curva
+            do nível de açúcar no sangue em duas horas (AUC) após um período de 12 horas de jejum e ingestão do alimento
+            que tem uma certa quantidade de carboidratos disponíveis (geralmente 50 g). A AUC do alimento testado é
+            dividida pela AUC do padrão (glicose ou pão branco, com duas definições distintas) e multiplicada por 100. O
+            valor médio do GI é determinado a partir dos dados obtidos de 10 participantes humanos. [...]
+        </blockquote>
+
+        <blockquote>
+            O Índice Glicêmico é uma medida importante da rapidez com que determinados alimentos podem afetar os níveis
+            de açúcar no sangue. Conhecer e compreender os valores do GI dos diferentes alimentos pode ajudá-lo a fazer
+            escolhas alimentares informadas para ajudar a manter níveis saudáveis de açúcar no sangue.”
+        </blockquote>
+
+        <p>A partir daí, é introduzida a carga glicêmica (GL): </p>
+
+        <blockquote>
+            “O GI é uma medida da rapidez com que um determinado alimento é convertido em glicose, e é expresso numa
+            escala de 1 a 100 (sendo 100 a conversão mais rápida). O GL vai mais longe, tendo em conta não só a
+            velocidade de conversão da glicose, mas também a quantidade de carboidratos contidos num determinado
+            alimento. Para calcular o GL, é utilizada a seguinte fórmula: GL = (GI x quantidade de carboidratos
+            disponíveis por porção) dividido por 100.”
+        </blockquote>
+
+        <p>Portanto, em nosso trabalho, iremos focar em pesquisar se é possível descobrir o GI e, consequentemente, o GL
+            de um alimento apenas pela quantidade de carboidratos, proteínas e gorduras informados em sua tabela
+            nutricional. Caso possível, tal procedimento seria de grande ajuda a pacientes diabéticos, que precisam
+            manter controle assíduo dos seus níveis de glicose no sangue e por conseguinte da sua alimentação.
+        </p>
+
+        <h2 id="dados">Dados Utilizados</h2>
+
+        <p>
+            Utilizamos os dados presentes no site
+            <a href="https://glycemic-index.net/">Glycemic Index Guide</a>. Estas são as principais features:
+        <ol>
+            <li>nome do alimento</li>
+            <li>categoria</li>
+            <li>calorias</li>
+            <li>carboidratos</li>
+            <li>proteínas</li>
+            <li>gorduras</li>
+            <li>GI</li>
+            <li>GL</li>
+        </ol>
+        </p>
+
+        <h2 id="perguntas">Perguntas</h2>
+        <ol>
+            <li>Quais são os alimentos menos recomendáveis para diabéticos? E os mais? O que eles têm em comum? Um
+                modelo preditivo consegue identificá-los de maneira eficaz e evitar uns e priorizar outros?</li>
+            <li>É possível gerar recomendações de dieta para diabéticos por meio de machine learning que sejam
+                personalizadas, se adequando a seus hábitos e preferências?</li>
+            <li>O que faz do nutricionista um profissional não substituível por uma inteligência artificial? Quais são
+                as principais limitações de um modelo preditivo para essa finalidade?</li>
+        </ol>
+
+        <h2 id="analise">Análise Exploratória dos Dados</h2>
+        <p>
+            De acordo com a própria fonte, <q>Foods with the <a
+                    href="https://glycemic-index.net/glossary/high-gi/">highest GI</a> are generally composed of sugars
+                and simple <a href="https://glycemic-index.net/glossary/carbohydrates/">carbohydrates</a>, which can
+                cause spikes in <a href="https://glycemic-index.net/glossary/blood-sugar-level/">blood sugar
+                    levels</a>.</q>
+        </p>
+
+        <p>
+            Em tese, cada grama de carboidrato corresponde a 4 kcal. Podemos observar que a base de dados não
+            corresponde a essa conta, o que nos leva a desconfiar do número de calorias. Portanto, foi criada uma
+            feature <code>“real_calories”</code> que calcula as calorias do alimento multiplicando:
+        <ul>
+            <li>Gramas de carboidratos e proteínas por 4</li>
+            <li>Gramas de gorduras por 9</li>
+        </ul>
+
+        A partir daí, foi calculada a feature <code>“carbs_kcal_perc”</code>, que pega a porcentagem de calorias do
+        alimento que são provenientes de carboidratos. Depois, foi adicionada a feature <code>“low_gl”</code>, binária
+        que simplesmente calcula se o GL do alimento é menor ou igual a 10 ou não.
+        </p>
+
+        <p>Adicionando um pequeno desvio na última, esta visualização é gerada:</p>
+
+        <img src="./assets/grafico-um.png" alt="Gráfico de kilocalorias versus baixo GL">
+
+        <p>
+            Com isso, é possível perceber que alimentos com alta % de calorias provenientes de carboidratos têm uma
+            tendência maior a serem altos em GL! Esse é um ótimo indício de alimentos a serem evitados por diabéticos.
+        </p>
+
+        <p>
+            Existem vários alimentos com GL = 0. Todos esses alimentos são alimentos com baixíssima quantidade de
+            carboidratos por 100g (o que mais contém, tem 7g). Isso faz muito sentido considerando que o GL é calculado
+            pelo <code>GI * carbs / 100</code>. Entretanto, como nem todos tem o carboidrato zerado, isso também é um
+            ótimo indicativo
+            que uma baixa quantidade de carboidratos significa um baixo GI.
+        </p>
+
+        <p>
+            Ao se gerar o gráfico comparativo, incluindo uma regressão linear, percebe-se que a correlação dos dados é
+            positiva, mas não muito forte.
+        </p>
+
+        <img src="./assets/grafico-dois.png" alt="Gráfico de índice glicêmico versus carboidratos">
+
+        <p>
+            Interessantemente, olhando-se a média do GL por categoria, percebe-se que os maiores GLs são de categorias
+            costumeiramente constituídas principalmente por carboidratos (vermelho) ou gorduras (amarelo):
+        </p>
+
+        <table>
+            <tr>
+                <th>Categoria</th>
+                <th>GL Médio</th>
+            </tr>
+            <tr id="table-carbohydrate">
+                <td>Baked products</td>
+                <td>31.99</td>
+            </tr>
+            <tr>
+                <td>Beverages</td>
+                <td>4.53</td>
+            </tr>
+            <tr>
+                <td>Dairy</td>
+                <td>3.7</td>
+            </tr>
+            <tr id="table-carbohydrate">
+                <td>Fast foods</td>
+                <td>30.56</td>
+            </tr>
+            <tr>
+                <td>Fruits</td>
+                <td>10.38</td>
+            </tr>
+            <tr id="table-fat">
+                <td>Grains</td>
+                <td>28.61</td>
+            </tr>
+            <tr>
+                <td>Greens</td>
+                <td>7.64</td>
+            </tr>
+            <tr>
+                <td>Meat</td>
+                <td>0.84</td>
+            </tr>
+            <tr>
+                <td>Mushrooms</td>
+                <td>1.35</td>
+            </tr>
+            <tr>
+                <td>Nuts</td>
+                <td>7.5</td>
+            </tr>
+            <tr>
+                <td>Oils and sauces</td>
+                <td>1.02</td>
+            </tr>
+            <tr>
+                <td>Seafood</td>
+                <td>0.7</td>
+            </tr>
+            <tr>
+                <td>Soups</td>
+                <td>2.9</td>
+            </tr>
+            <tr>
+                <td>Spices</td>
+                <td>5.07</td>
+            </tr>
+            <tr id="table-carbohydrate">
+                <td>Sweets</td>
+                <td>38.51</td>
+            </tr>
+            <tr>
+                <td>Vegetables</td>
+                <td>3.5</td>
+            </tr>
+            <tr>
+                <td>Other</td>
+                <td>18.59</td>
+            </tr>
+        </table>
+
+
+        <p>Vamos dar mais foco no GL no restante do relatório, visto que, como seus valores já são normalizados para a
+            quantidade de carboidratos de uma porção, ele reflete melhor o efeito de um determinado alimento ao ser
+            consumido.</p>
+
+
+
+
+
+        <h2 id="hipotese">Teste de Hipótese</h2>
+        <p>Como observado anteriormente, categorias onde os alimentos são majoritariamente compostos de carboidratos e
+            gorduras parecem ter GL mais alto. Para testar essa hipótese, podemos fazer um teste de permutação:
+            embaralhamos as categorias dos alimentos, calculamos as médias e vemos se os valores que encontramos
+            originalmente podem ser explicados pelo acaso ou se são de fato raros de se acontecer, implicando que nossa
+            tese tem validade.
+        </p>
+
+        <ul>
+            <li>Hipótese nula: (H0): As GLs médias das categorias que observamos pode ocorrer ao acaso.</li>
+            <li>Hipótese alternativa (HA): Alimentos com maior fração de carboidratos em sua composição têm maior GL, na
+                média.</li>
+        </ul>
+
+        <img src="./assets/grafico-tres.png" alt="Gráfico de ocorrências e médias de Baked products">
+        <img src="./assets/grafico-quatro.png" alt="Gráfico de ocorrências e médias de Beverages">
+        <img src="./assets/grafico-cinco.png" alt="Gráfico de ocorrências e médias de Dairy">
+        <img src="./assets/grafico-seis.png" alt="Gráfico de ocorrências e médias de Fast foods">
+        <img src="./assets/grafico-sete.png" alt="Gráfico de ocorrências e médias de Fruits">
+        <img src="./assets/grafico-oito.png" alt="Gráfico de ocorrências e médias de Grains">
+        <img src="./assets/grafico-nove.png" alt="Gráfico de ocorrências e médias de Greens">
+        <img src="./assets/grafico-dez.png" alt="Gráfico de ocorrências e médias de Meat">
+        <img src="./assets/grafico-onze.png" alt="Gráfico de ocorrências e médias de Mushrooms">
+        <img src="./assets/grafico-doze.png" alt="Gráfico de ocorrências e médias de Nuts">
+        <img src="./assets/grafico-treze.png" alt="Gráfico de ocorrências e médias de Oils and sauces">
+        <img src="./assets/grafico-catorze.png" alt="Gráfico de ocorrências e médias de Other">
+        <img src="./assets/grafico-quinze.png" alt="Gráfico de ocorrências e médias de Seafood">
+        <img src="./assets/grafico-dezesseis.png" alt="Gráfico de ocorrências e médias de Soups">
+        <img src="./assets/grafico-dezessete.png" alt="Gráfico de ocorrências e médias de Spices">
+        <img src="./assets/grafico-dezoito.png" alt="Gráfico de ocorrências e médias de Sweets">
+        <img src="./assets/grafico-dezenove.png" alt="Gráfico de ocorrências e médias de Vegetables">
+
+        <p>Executamos diversos intervalos de confiança, e podemos notar que, na maioria deles, os valores observados
+            estão fora do intervalo de confiança, o que nos permite rejeitar a hipótese nula de que os valores que
+            observamos são explicados pelo acaso. Isso nos dá mais confiança de que nossa hipótese alternativa está
+            correta, e que alimentos onde a maior parte das calorias vem de carboidratos e gorduras têm GL maior, sendo
+            assim alimentos que devem ser evitados por pessoas com diabetes.</p>
+
+        <ul>
+            <li>Os casos em que os valores estão dentro do IC podem ser facilmente explicados pelo número de elementos:
+                categorias como Sopas, Frutos do mar e Cogumelos são muito pequenas (5, 5 e 2 alimentos,
+                respectivamente). Isso aumenta a variabilidade das médias, alargando os Intervalos de Confiança para
+                cobrir uma faixa de valores maior, que acabam incluindo nossas médias observadas.</li>
+        </ul>
+
+        <h2 id="regressao">Modelos de Regressão</h2>
+        <p>
+            Além das análises exploratórias que fizemos dos dados, o nosso teste de hipótese nos confirmou que de fato
+            há uma correlação entre a composição em macronutrientes do alimento (em especial carboidratos e gorduras) e
+            o GL dele. Com base nesses indícios, podemos treinar um modelo de regressão para prever o valor do GL de um
+            alimento a partir de suas informações nutricionais.
+        </p>
+        <p>
+            Inicialmente, tentamos duas abordagens: uma regressão múltipla com regularização L2, uma regressão baseada
+            em
+            vizinhos mais próximos, e uma regressão usando Random Forest, um modelo não estudado no curso (porém
+            brevemente visto em uma das listas). As features escolhidas para compor o modelo foram:
+        </p>
+
+        <ul>
+            <li>A quantidade de calorias da amostra (para uma amostra de 100g, que é o caso de todas as amostras
+                presentes)</li>
+            <li>A porcentagem das calorias que é proveniente de carboidratos</li>
+            <li>A quantidade de carboidratos da amostra (em gramas)</li>
+            <li>A quantidade de proteínas da amostra (em gramas)</li>
+            <li>A quantidade de gorduras da amostra (em gramas)</li>
+        </ul>
+
+        <p>
+            Utilizamos também a validação cruzada para evitar um overfitting dos nossos dados, na busca de encontrar um
+            modelo que generalize melhor. Abaixo estão os resultados que encontramos, utilizando a biblioteca SciKit
+            Learn.
+        </p>
+
+        <h3>Regressão Múltipla com Regularização L2</h3>
+        <ul>
+            <li>Coeficientes: [0.01110037 0.54678867 -0.26619931 -0.10173302]</li>
+            <li>Intercepto: -0.5130038517747195</li>
+            <li>Alpha da regularização: 1.0</li>
+            <li>R2 da Regressão Polinomial: 0.831997858888091</li>
+        </ul>
+
+        <h3>Regressão KNN</h3>
+        <ul>
+            <li>Número de vizinhos: 7</li>
+            <li>R2 do KNN: 0.8283365130501471</li>
+        </ul>
+
+        <h3>Regressão com Random Forest</h3>
+        <ul>
+            <li>Número de estimadores: 100</li>
+            <li>R2 do Random Forest: 0.8299958861673788</li>
+        </ul>
+
+        <p>Olhando para o valor do R2 de cada um dos modelos, avaliado nos dados de teste, vemos que a regressão
+            múltipla se saiu melhor que o KNN e o RFR, e por isso escolhemos esse modelo para prosseguir.</p>
+
+        <p>Para melhorar o nosso modelo, utilizamos a biblioteca statsmodels, pois ela nos apresenta resultados mais
+            detalhados, que facilitam a criação de um modelo mais polido.</p>
+
+        <table>
+            <tr>
+                <td>Dep. Variable</td>
+                <td>glycemic_load</td>
+            </tr>
+            <tr>
+                <td>Model</td>
+                <td>OLS</td>
+            </tr>
+            <tr>
+                <td>Method</td>
+                <td>Least Squares</td>
+            </tr>
+            <tr>
+                <td>Date</td>
+                <td>dom, 18 ago 2024</td>
+            </tr>
+            <tr>
+                <td>Time</td>
+                <td>00:58:58</td>
+            </tr>
+            <tr>
+                <td>No. Observations</td>
+                <td>462</td>
+            </tr>
+            <tr>
+                <td>Df Residuals</td>
+                <td>457</td>
+            </tr>
+            <tr>
+                <td>Df Model</td>
+                <td>4</td>
+            </tr>
+            <tr>
+                <td>Covariance Type</td>
+                <td>nonrobust</td>
+            </tr>
+            <tr>
+                <td>R-squared: </td>
+                <td>0.772</td>
+            </tr>
+            <tr>
+                <td>Adj. R-squared: </td>
+                <td>0.770</td>
+            </tr>
+            <tr>
+                <td>F-statistic: </td>
+                <td>386.7</td>
+            </tr>
+            <tr>
+                <td>Prob (F-statistic): </td>
+                <td>3.70e-145</td>
+            </tr>
+            <tr>
+                <td>Log-Likelihood: </td>
+                <td>-1684.0</td>
+            </tr>
+            <tr>
+                <td>AIC: </td>
+                <td>3378.</td>
+            </tr>
+            <tr>
+                <td>BIC: </td>
+                <td>3399.</td>
+            </tr>
+        </table>
+
+        <table>
+            <tr>
+                <th></th>
+                <th>coef</th>
+                <th>std err</th>
+                <th>t</th>
+                <th>P>|t| </th>
+                <th>[0.025</th>
+                <th>0.975]</th>
+            </tr>
+            <tr>
+                <th>const</th>
+                <td>3.3097</td>
+                <td>1.699</td>
+                <td>1.948</td>
+                <td>0.052</td>
+                <td>-0.029</td>
+                <td>6.648</td>
+            </tr>
+            <tr>
+                <th>real_calories</th>
+                <td>0.0055</td>
+                <td>0.004</td>
+                <td>1.464</td>
+                <td>0.144</td>
+                <td>-0.002</td>
+                <td>0.013</td>
+            </tr>
+            <tr>
+                <th>carbs_kcal_perc</th>
+                <td>-6.1753</td>
+                <td>2.370</td>
+                <td>-2.606</td>
+                <td>0.009</td>
+                <td>-10.832</td>
+                <td>-1.519</td>
+            </tr>
+            <tr>
+                <th>carbohydrates</th>
+                <td>0.6306</td>
+                <td>0.029</td>
+                <td>21.988</td>
+                <td>0.000</td>
+                <td>0.574</td>
+                <td>0.687</td>
+            </tr>
+            <tr>
+                <th>protein</th>
+                <td>-0.3877</td>
+                <td>0.062</td>
+                <td>-6.269</td>
+                <td>0.000</td>
+                <td>-0.509</td>
+                <td>-0.266</td>
+            </tr>
+            <tr>
+                <th>fats</th>
+                <td>-0.1074</td>
+                <td>0.022</td>
+                <td>-4.906</td>
+                <td>0.000</td>
+                <td>-0.150</td>
+                <td>-0.064</td>
+            </tr>
+        </table>
+
+        <table>
+            <tr>
+                <td>Omnibus: </td>
+                <td>70.545 </td>
+            </tr>
+            <tr>
+                <td>Prob(Omnibus): </td>
+                <td>0.000 </td>
+            </tr>
+            <tr>
+                <td>Skew: </td>
+                <td>0.047 </td>
+            </tr>
+            <tr>
+                <td>Kurtosis: </td>
+                <td>9.427 </td>
+            </tr>
+            <tr>
+                <td>Durbin-Watson: </td>
+                <td>2.086</td>
+            </tr>
+            <tr>
+                <td>Jarque-Bera (JB): </td>
+                <td>795.365</td>
+            </tr>
+            <tr>
+                <td>Prob(JB): </td>
+                <td>1.94e-173</td>
+            </tr>
+            <tr>
+                <td>Cond. No. </td>
+                <td>2.18e+16</td>
+            </tr>
+        </table>
+
+        <p>O relatório de regressão acima, gerado com a biblioteca statsmodels, mostra os intervalos de confiança para
+            os coeficientes da nossa regressão. Os intervalos que contém o valor 0 correspondem a features que podem
+            possivelmente ser eliminadas do nosso modelo, para reduzir a variância e encontrar um modelo que generalize
+            melhor. Neste caso, o relatório diz que a variável real_calories pode ser eliminada. Nos gráficos abaixo,
+            podemos comparar os dois modelos.</p>
+        <ul>
+            <li>A primeira linha é referente ao modelo com a feature real_calories, enquanto na segunda linha a feature
+                foi removida.</li>
+            <li>Nos gráficos da esquerda, o eixo x indica o valor observado na amostra, enquanto o eixo y indica o valor
+                previsto pelo modelo, ou seja, quanto mais próximos os pontos azuis estiverem da reta vermelha y=x,
+                melhor o modelo conseguiu prever os dados. Se o ponto estiver acima da reta, o modelo previu um valor
+                maior do que o observado, e o contrário se o ponto estiver abaixo da reta.</li>
+            <li>Nos gráficos da direita, as amostras foram ordenadas pelo GL. Assim, o eixo x é apenas o id da amostra,
+                e o eixo y indica o valor do GL. A curva azul corresponde às amostras, e a curva laranja representa as
+                previsões do modelo para cada ponto. Quanto mais próxima a curva laranja estiver da azul, mais próximo o
+                modelo está dos dados. Novamente, se um ponto laranja estiver acima da curva azul, o modelo previu um
+                valor maior do que o observado, e o contrário se o ponto estiver abaixo da curva azul.</li>
+        </ul>
+
+        <img src="./assets/grafico-vinte.png" alt="Gráfico de GL previsto e o observado, além da ID da amostra">
+
+
+        <p>Como é possível perceber pelos gráficos acima, ainda que tenhamos visto uma correlação na nossa análise
+            exploratória/teste de hipótese e que o score R2 seja bom, a regressão que obtivemos não parece aproximar bem
+            os nossos dados de teste. Vamos analisar alguns dos possíveis motivos por trás deste resultado:</p>
+
+        <ol>
+            <li><strong>As previsões flutuam muito:</strong> como temos 4 features e 1 variável resposta, os pontos da
+                nossa base vivem num espaço 5-dimensional, de forma que a visualização fica mais difícil. As previsões
+                (curvas laranja) parecem flutuar muito ao redor dos dados, o que torna mais difícil dizer se o modelo
+                seria capaz de generalizar bem para novas amostras.</li>
+
+            <li><strong>A distribuição das amostras é desigual:</strong> nos gráficos da direita (figura acima), o
+                formato da curva azul nos mostra que temos uma contentração muito maior de valores com GLs mais baixos
+                do que com GLs mais altos. Isso é evidenciado pelo fato de que a curva laranja se adapta melhor aos
+                dados exatamente nessa parte, com as divergências aumentando nas duas extremidades das curvas (onde os
+                GLs são mais altos para um lado, ou 0 para o outro). É possível que essa discrepância tenha impedido o
+                modelo de se adaptar melhor aos dados, causando as flutuações percebidas e fazendo com que o modelo
+                preveja valores de GL negativos para amostras em que o valor observado é 0.</li>
+
+            <li><strong>As variáveis que temos não são suficientes:</strong> por fim, temos sempre de considerar a
+                possibilidade de que as nossas variáveis não sejam o suficiente para prever nossa variável resposta, ou
+                seja, existe uma porção da variabilidade do GL que não pode ser explicada apenas por calorias,
+                carboidratos, proteínas e gorduras.</li>
+        </ol>
+
+
+
+        <h2 id="consideracoes">Outras Considerações</h2>
+        <p>Suponhamos que um modelo mais preciso que este exista, e que com algumas variáveis a mais, seja possível
+            prever, dentro de uma tolerância razoável, o valor do GI/GL de um determinado alimento. Quais seriam as
+            ramificações?
+        </p>
+        <p>Um modelo deste tipo certamente seria muito útil, trazendo mais autonomia e clareza para pessoas com
+            diabetes, que seriam capazes de fazer escolhas mais informadas e consumir alimentos com impacto mais
+            reduzido na saúde. No entanto, esse modelo ainda não seria capaz de substituir um profissional da nutrição
+            no cuidado de pessoas com diabetes. Ainda que o GI e o GL sejam importantes fatores, outros cuidados
+            precisam ser tomados ao montar uma dieta adequada e saudável: é necessário ingerir uma quantidade mínima de
+            água, vitaminas, fibras e outros nutrientes. Devem também ser levados em consideração os horários corretos
+            da alimentação, além das preferências pessoais, condições materiais e possíveis outras restrições
+            alimentares de cada um. Esses fatores não são incorporados em um modelo desse tipo, que teria de se tornar
+            cada vez mais complexo. Isso faz do nutricionista um profissional indispensável no tratamento da diabetes.
+        </p>
+
+        <h2 id="conclusoes">Conclusões</h2>
+        <p>Vamos retomar nossas perguntas iniciais:</p>
+        <ol>
+            <li>Descobrimos que os alimentos mais prejudiciais para as pessoas com diabetes são aqueles com índice
+                glicêmico e carga glicêmica alta, pois eles liberam os açúcares no sangue muito rapidamente, causando
+                possíveis picos de hiperglicemia. Sendo assim, pessoas com diabetes devem consumir preferencialmente
+                alimentos com GI/GL mais baixos, para que a glicose seja menos afetada.</li>
+            <li>Vimos que a regressão linear não parece ser capaz de prever adequadamente os valores de GI/GL dos
+                alimentos - em uma pequena faixa os resultados são satisfatórios, mas nos extremos as previsões divergem
+                muito dos dados. Com mais features é possível que exista um modelo que possa prever o GI/GL com
+                acurácia.</li>
+            <li>Ainda que encontrassemos tal modelo mais preciso, ele ainda não seria capaz de substituir um
+                nutricionista. Isso se deve ao fato de que o GI e o GL, ainda que importantes, não são as únicas
+                preocupações relevantes para pessoas com diabetes - um consumo adequado de vitaminas, fibras e outros
+                nutrientes também se faz necessário para uma dieta mais saudável, além das preferências e condições
+                materiais de cada indivíduo - e estes fatores não são levados em consideração pelo modelo.</li>
+        </ol>
+
+    </main>
+
+    <footer>
+        <p>Arthur Ramos, Gabriel Coelho, Gabriel Marra, Igor Martins © 2024 MIT License</p>
+    </footer>
+
+</body>
+
+</html>

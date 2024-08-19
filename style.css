@@ -1,0 +1,158 @@
+:root {
+  --green: #49aa26;
+  --light-green: #3dd705;
+  --red: #e92929;
+  --yellow: #fffb00;
+  --bg: #dedede;
+  --bg-panel: #ebebeb;
+  --bg-header: linear-gradient(to right, #43e97b 0%, #38f9d7 100%);
+  --color-text: #333333;
+  transition: all 0.3s linear;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 93.75w;
+}
+
+body {
+  background: var(--bg-header);
+  color: var(--color-text);
+
+  font-family: "Poppins", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 2rem;
+
+  margin-bottom: 2rem;
+}
+
+header {
+  background-color: var(--color-text);
+  color: var(--bg-panel);
+  text-align: center;
+
+  width: min(90vw, 800px);
+  border-radius: 0.8rem;
+
+  padding: 2rem;
+
+  margin: 2rem auto;
+}
+
+h1 {
+  font-size: 1.5rem;
+}
+
+h2 {
+  margin: 1rem 0;
+  font-size: 1.25rem;
+}
+
+.container {
+  width: min(90vw, 800px);
+  margin: auto;
+
+  background-color: var(--bg-panel);
+
+  border-radius: 0.8rem;
+  padding: 2rem;
+}
+
+blockquote {
+  margin: 1rem auto;
+  padding: 1rem;
+  background-color: var(--bg);
+  width: 80%;
+
+  border-radius: 0.8rem;
+
+  font-style: italic;
+}
+
+q {
+  font-style: italic;
+  background-color: var(--bg);
+}
+
+p {
+  margin: 1rem 0;
+}
+
+ul,
+ol {
+  padding: 0 5rem;
+}
+
+li {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+img {
+  width: 100%;
+  border-radius: 0.8rem;
+
+  margin: 1rem 0;
+}
+
+table {
+  border-collapse: collapse;
+  width: 50%;
+  margin: 1rem auto;
+
+  font-weight: 500;
+}
+
+th,
+td {
+  border: 1px solid black;
+  padding: 8px;
+  text-align: left;
+}
+
+th {
+  font-weight: 700;
+}
+
+tr#table-carbohydrate {
+  background-color: var(--red);
+  color: var(--bg-panel);
+}
+
+tr#table-fat {
+  background-color: var(--yellow);
+}
+
+footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding: 0 10rem;
+
+  font-size: 0.8rem;
+}
+
+/* Responsive =====================================*/
+@media (max-width: 800px) {
+  html {
+    font-size: 87.5%;
+  }
+
+  ul,
+  ol {
+    padding: 0 3rem;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  footer {
+    padding: 0 5rem;
+  }
+}
